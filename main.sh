@@ -22,6 +22,8 @@ UUID_1TB="EE36E83B36E80685"
 UUID_2TB="DC60524D60522F10"
 UUID_4TB="FC5826D858269206"
 
+LOG_DIR=$(pwd)/logs
+LOG_FILE=rsync_files_$(date +%s).txt
 
 ##### Colors #####
 blueHigh="\e[44m"
@@ -52,17 +54,16 @@ function rsync_hdd () {
     echo "Re-mount harddisks"
     sudo mount -a
 
-    LOG_DIR=$(pwd)/logs
     mkdir -p $LOG_DIR
     echo -e "$clearColor $blueHigh Press Enter to start Dry Run $clearColor"
     read
     echo -e "$clearColor $blueHigh Dry run: Below files will be changed. $clearColor"
-    rsync -iaAXvh --delete --dry-run --exclude={"\$RECYCLE.BIN","System\ Volume\ Information",".Trash-1000"} $source $destination > $LOG_DIR/rsync_files.txt
+    rsync -iaAXvh --delete --dry-run --exclude={"\$RECYCLE.BIN","System\ Volume\ Information",".Trash-1000"} $source $destination > $LOG_DIR/$LOG_FILE
     redFlags "Rsync Dry Run"
     # What files will be updated?
-    egrep '^(>|c)' $LOG_DIR/rsync_files.txt
+    egrep '^(>|c)' $LOG_DIR/$LOG_FILE
     #Adapted from: https://unix.stackexchange.com/a/293941
-    files_changed=$(egrep '^(>|c)' $LOG_DIR/rsync_files.txt | wc -l)
+    files_changed=$(egrep '^(>|c)' $LOG_DIR/$LOG_FILE | wc -l)
     
     echo -e "$clearColor $blueHigh Number files will be changed: $clearColor $greenHigh $files_changed $clearColor"
     echo -e "$clearColor $blueHigh Press Enter to continue with the sync... $clearColor"
