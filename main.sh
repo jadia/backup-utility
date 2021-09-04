@@ -1,35 +1,10 @@
 #!/bin/bash
 : '
 Description: Backup and sync hard-disks
-Author: github.com/jadia
+Author: jadia.dev
 Date: 2021-08-21
 Version: v0.0.1
 '
-
-    # Backup flow
-    #   ┌─────────────┐        ┌──────────────┐       ┌────────────┐
-    #   │             │        │              │       │            │
-    #   │     1TB     ├──────► │     2TB      ├──────►│    4TB     │
-    #   │             │        │              │       │            │
-    #   └─────────────┘        └──────────────┘       └────────────┘
-
-    # Backup structure;
-    #  ┌─────────────────────────────────────┐
-    #  │                                     │  Most important data will be
-    #  │                4TB                  │  saved in 1TB and whole 1TB
-    #  │                                     │  will be synced to 2TB and 
-    #  │    ┌───────────────────────────┐    │  whole 2TB will be synced to
-    #  │    │                           │    │  4TB.
-    #  │    │           2TB             │    │  This way most important data
-    #  │    │     ┌──────────────┐      │    │  will be replicated across
-    #  │    │     │              │      │    │  3 drives for redundancy.
-    #  │    │     │     1TB      │      │    │
-    #  │    │     │              │      │    │
-    #  │    │     └──────────────┘      │    │
-    #  │    │                           │    │
-    #  │    └───────────────────────────┘    │
-    #  │                                     │
-    #  └─────────────────────────────────────┘
 
 
 #### Variables ####
