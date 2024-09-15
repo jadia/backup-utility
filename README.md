@@ -1,4 +1,4 @@
-# Backup Utility
+# Local Backup Automation Utility
 
 This is a simple backup utility which I use to automate my backups.    
 
@@ -15,6 +15,8 @@ cd backup-utility
 ```
 
 ## How to Use   
+
+### Synchronize hard-disk
 
 ```bash
 Usage:   ./main.sh --OPTION <SOURCE> <DESTINATION>
@@ -33,10 +35,16 @@ Options:
         1tb, 2tb & 4tb
 ```
 
+### Backup Laptop Data
+
+```bash
+Usage: ./laptop_backup.sh
+```
+
+
 ## Resources   
 <!-- 
-
-https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989
-
-
-https://github.com/rackbrains/automate-ssh-key-rotation-with-ansible/blob/master/bin/rotate-keys.sh -->
+https://stackoverflow.com/a/36851784    
+https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989      
+https://github.com/rackbrains/automate-ssh-key-rotation-with-ansible/blob/master/bin/rotate-keys.sh    
+-->

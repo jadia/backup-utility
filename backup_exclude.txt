@@ -1,0 +1,27 @@
+/mnt
+/virtualenv
+/GPUCache
+/snap
+/logs
+/VirtualBox VMs
+/venv
+.backup_HDD
+.steam
+.steampath
+.steampid
+/cache
+.config
+/local
+/npm
+.npmrc
+.docker
+.jupyter
+.gnome
+.cache
+.local
+.mozilla
+.npm
+.vscode
+.thumbnails
+node_modules
+mnt
