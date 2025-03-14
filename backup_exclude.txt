@@ -25,3 +25,9 @@
 .thumbnails
 node_modules
 mnt
+.jdks
+.java
+.m2
+.tabnine
+.dotnet
+.dbus

@@ -53,7 +53,7 @@ function backup_laptop () {
     echo -e "$clearColor $blueHigh Dry run: Below files will be changed. $clearColor"
 
     # Perform rsync dry-run and log the files that will be changed (level 1 depth only)
-    rsync -iaAXvh --delete --dry-run --exclude-from="$EXCLUDE_FILE" --no-links \
+    rsync -iaAXvh --delete --no-perms --dry-run --exclude-from="$EXCLUDE_FILE" --no-links \
         "$source/" "$destination/" > "$LOG_FILE"
 
     redFlags "Rsync Dry Run"
@@ -75,7 +75,7 @@ function backup_laptop () {
     read
 
     # Perform the actual rsync operation
-    rsync -iaAXvh --delete --ignore-errors --exclude-from="$EXCLUDE_FILE" --no-links \
+    rsync -iaAXvh --delete --no-perms --ignore-errors --exclude-from="$EXCLUDE_FILE" --no-links \
           "$source/" "$destination/" >> "$LOG_FILE" 2>&1
 
     redFlags "Rsync: $source -> $destination"
@@ -85,5 +85,4 @@ function backup_laptop () {
     echo -e "$clearColor $greenHigh Backup completed successfully. $clearColor"
 }
 
-# Call the backup function
 backup_laptop
