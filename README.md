@@ -35,15 +35,17 @@ Options:
         1tb, 2tb & 4tb
 ```
 
-### Backup Laptop Data
+# Backup Laptop Data to 4TB HardDisk
+
+Make sure `4TB` HardDisk is mounted!   
 
 ```bash
 Usage: ./laptop_backup.sh
 ```
 
 
-## Resources   
 <!-- 
+## Resources   
 https://stackoverflow.com/a/36851784    
 https://medium.com/capital-one-tech/bashing-the-bash-replacing-shell-scripts-with-python-d8d201bc0989      
 https://github.com/rackbrains/automate-ssh-key-rotation-with-ansible/blob/master/bin/rotate-keys.sh    
