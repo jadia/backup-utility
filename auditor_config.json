@@ -1,0 +1,18 @@
+{
+    "DB_NAME": "auditor.db",
+    "EXCLUSIONS": [
+        ".git/",
+        "node_modules/",
+        "venv/",
+        ".cache/",
+        "tmp/",
+        "System Volume Information/",
+        "$RECYCLE.BIN/"
+    ],
+    "EXT_FILTER": [
+        ".jpg", ".jpeg", ".png", ".heic",
+        ".cr2", ".arw", ".dng", ".tif",
+        ".mp4", ".mov", ".m4v", ".3gp",
+        ".pdf"
+    ]
+}

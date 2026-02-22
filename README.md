@@ -22,12 +22,20 @@ Ensure you have the following installed on your Ubuntu/Linux system:
 * `python3`
 * `sqlite3`
 
-### 2. Configuration (`config.env`)
-Before running the utility, open `config.env` and define:
+### 2. Configuration
+Before running the utility, you must configure two files:
+
+**`config.env`**:
+Open this file to map your fundamental hardware topology. You must define:
 1. The **UUIDs** of your hard drives.
 2. The **mount points** where they will be attached.
 3. The **sync destination paths** mapping how you cascade your data (e.g., 1TB -> 2TB).
 4. Thresholds for safe-sync warnings.
+
+**`auditor_config.json`**:
+Open this JSON file to customize the Integrity Auditor's parameters:
+1. **`EXT_FILTER`**: Tailor this array with specific file extensions you want protected (e.g., `.jpg`, `.mp4`, `.pdf`). Any non-critical extensions omitted from this list will be intelligently ignored to drastically improve hashing speeds on mechanical drives.
+2. **`EXCLUSIONS`**: Directories completely ignored by the auditor.
 
 ### 3. Usage
 Run the interactive menu wrapper:
