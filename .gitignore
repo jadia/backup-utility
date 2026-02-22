@@ -1,7 +1,6 @@
 logs/**
 *.db
 *.db-journal
-*.json
 __pycache__
 *.py[cod]
 *$py.class

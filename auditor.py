@@ -18,58 +18,26 @@ import argparse
 import json
 from datetime import datetime
 
-# Load configuration from config.env (simple parsing, no external deps)
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.env")
+# Load configuration safely from JSON
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "auditor_config.json")
 
 def load_config():
-    config = {}
     if not os.path.exists(CONFIG_FILE):
         print(f"Error: {CONFIG_FILE} not found. Please ensure it exists.")
         sys.exit(1)
         
     with open(CONFIG_FILE, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith('#'):
-                # Handle bash array format for exclusions roughly
-                if line.startswith('EXCLUSIONS=('):
-                    config['EXCLUSIONS'] = []
-                    continue
-                if line.startswith('AUDITOR_EXT_FILTER=('):
-                    config['AUDITOR_EXT_FILTER'] = []
-                    continue
-                
-                # If we are inside an array parsing (hacky but works for the format we defined)
-                if 'EXCLUSIONS' in config and isinstance(config['EXCLUSIONS'], list) and line == ')':
-                    # Array ended, convert to tuple
-                    continue
-                elif 'EXCLUSIONS' in config and isinstance(config['EXCLUSIONS'], list):
-                    val = line.strip(' "()')
-                    if val: config['EXCLUSIONS'].append(val)
-                    continue
-
-                if 'AUDITOR_EXT_FILTER' in config and isinstance(config['AUDITOR_EXT_FILTER'], list) and line == ')':
-                    continue
-                elif 'AUDITOR_EXT_FILTER' in config and isinstance(config['AUDITOR_EXT_FILTER'], list):
-                    val = line.strip(' "()')
-                    if val: config['AUDITOR_EXT_FILTER'].append(val.lower())
-                    continue
-
-                if '=' in line:
-                    key, val = line.split('=', 1)
-                    config[key] = val.strip(' "')
-                    
-    # Default fallbacks if parsing didn't catch arrays well
-    if 'EXCLUSIONS' not in config: config['EXCLUSIONS'] = []
-    if 'AUDITOR_EXT_FILTER' not in config: config['AUDITOR_EXT_FILTER'] = []
-    if 'AUDITOR_DB_NAME' not in config: config['AUDITOR_DB_NAME'] = 'auditor.db'
-    
-    return config
+        try:
+            config = json.load(f)
+            return config
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON configuration in {CONFIG_FILE}: {e}")
+            sys.exit(1)
 
 CONFIG = load_config()
 
 # Database setup
-DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG.get('AUDITOR_DB_NAME', 'auditor.db'))
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG.get('DB_NAME', 'auditor.db'))
 LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # Ensure logs dir exists
@@ -127,7 +95,7 @@ def should_exclude(file_path):
             return True
             
     # 2. Check extension filter (if defined)
-    ext_filter = CONFIG.get('AUDITOR_EXT_FILTER', [])
+    ext_filter = CONFIG.get('EXT_FILTER', [])
     if ext_filter:
         _, ext = os.path.splitext(file_path)
         if ext.lower() not in ext_filter:
