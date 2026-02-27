@@ -37,7 +37,8 @@ def load_config():
 CONFIG = load_config()
 
 # Database setup
-DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG.get('DB_NAME', 'auditor.db'))
+DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "db")
+os.makedirs(DB_DIR, exist_ok=True)
 LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # Ensure logs dir exists
@@ -51,8 +52,8 @@ def log(msg, echo=True):
     with open(LOG_FILE, 'a') as f:
         f.write(msg + '\n')
 
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
+def init_db(db_file):
+    conn = sqlite3.connect(db_file)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS file_hashes (
@@ -103,16 +104,16 @@ def should_exclude(file_path):
             
     return False
 
-def run_audit(target_dir, force_rehash=False):
+def run_audit(target_dir, db_file, force_rehash=False):
     if not os.path.isdir(target_dir):
         log(f"Error: Target directory '{target_dir}' does not exist.")
         return
 
     log(f"--- Starting Audit of: {target_dir} ---")
-    log(f"Database: {DB_FILE}")
+    log(f"Database: {db_file}")
     log(f"Start Time: {datetime.now()}")
     
-    conn = init_db()
+    conn = init_db(db_file)
     cursor = conn.cursor()
     
     current_time = time.time()
@@ -249,7 +250,7 @@ def run_audit(target_dir, force_rehash=False):
         
     log(f"\nDetailed log saved to: {LOG_FILE}")
 
-def find_duplicates(target_dir, known_dupes_file=None):
+def find_duplicates(target_dir, db_file, known_dupes_file=None):
     log(f"--- Finding Duplicates in DB for: {target_dir} ---")
     
     known_dupes_map = {}
@@ -265,7 +266,7 @@ def find_duplicates(target_dir, known_dupes_file=None):
         except Exception as e:
             log(f"Warning: Could not parse known duplicates JSON: {e}")
             
-    conn = init_db()
+    conn = init_db(db_file)
     cursor = conn.cursor()
     
     like_query = f"{target_dir}%"
@@ -326,10 +327,13 @@ if __name__ == "__main__":
     parser.add_argument("--force-rehash", action="store_true", help="Force recalculation of hashes ignoring mtime/size")
     parser.add_argument("--find-duplicates", action="store_true", help="Find duplicate files in the audited directory (based on DB)")
     parser.add_argument("--known-duplicates", default="", help="Path to JSON file with known duplicates to ignore")
+    parser.add_argument("--db-name", default="auditor.db", help="Name of the SQLite database file to use in ./db/")
     
     args = parser.parse_args()
     
+    db_file_path = os.path.join(DB_DIR, args.db_name)
+    
     if args.find_duplicates:
-        find_duplicates(args.target_dir, args.known_duplicates)
+        find_duplicates(args.target_dir, db_file_path, args.known_duplicates)
     else:
-        run_audit(args.target_dir, args.force_rehash)
+        run_audit(args.target_dir, db_file_path, args.force_rehash)

@@ -79,14 +79,16 @@ sync_menu() {
     echo -e "${CYAN}          Select Sync Direction           ${NC}"
     echo -e "${CYAN}==========================================${NC}"
     echo "1. 1TB -> 2TB HDD"
-    echo "2. 2TB -> 4TB HDD"
-    echo "3. Laptop -> 4TB HDD"
-    echo "4. Back to Main Menu"
+    echo "2. 1TB -> 4TB HDD"
+    echo "3. 2TB -> 4TB HDD"
+    echo "4. Laptop -> 4TB HDD"
+    echo "5. Back to Main Menu"
     echo ""
-    read -rp "Option [1-4]: " sync_opt
+    read -rp "Option [1-5]: " sync_opt
 
     local src=""
     local dest=""
+    local dest_uuid=""
     
     case $sync_opt in
         1)
@@ -94,19 +96,29 @@ sync_menu() {
             mount_drive "$UUID_2TB" "$MOUNT_2TB"
             src="$MOUNT_1TB"
             dest="$DEST_2TB_FROM_1TB"
+            dest_uuid="$UUID_2TB"
             ;;
         2)
+            mount_drive "$UUID_1TB" "$MOUNT_1TB"
+            mount_drive "$UUID_4TB" "$MOUNT_4TB"
+            src="$MOUNT_1TB"
+            dest="$DEST_4TB_FROM_1TB"
+            dest_uuid="$UUID_4TB"
+            ;;
+        3)
             mount_drive "$UUID_2TB" "$MOUNT_2TB"
             mount_drive "$UUID_4TB" "$MOUNT_4TB"
             src="$MOUNT_2TB"
             dest="$DEST_4TB_FROM_2TB"
+            dest_uuid="$UUID_4TB"
             ;;
-        3)
+        4)
             mount_drive "$UUID_4TB" "$MOUNT_4TB"
             src="$HOME"
             dest="$DEST_4TB_LAPTOP"
+            dest_uuid="$UUID_4TB"
             ;;
-        4) return ;;
+        5) return ;;
         *) echo "Invalid option"; sleep 1; sync_menu; return ;;
     esac
 
@@ -126,7 +138,7 @@ sync_menu() {
     echo -ne "\n${CYAN}Would you like to run the Hashing Auditor on the Destination now? [y/N]: ${NC}"
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        python3 "$AUDITOR_SCRIPT" "$dest"
+        python3 "$AUDITOR_SCRIPT" "$dest" --db-name "${dest_uuid}.db"
     fi
     
     echo -e "\nPress Enter to return to main menu..."
@@ -169,19 +181,21 @@ audit_menu() {
     read -rp "Option [1-5]: " au_opt
     
     local target=""
+    local db_name=""
     case $au_opt in
-        1) target="$MOUNT_1TB" ;;
-        2) target="$MOUNT_2TB" ;;
-        3) target="$MOUNT_4TB" ;;
+        1) target="$MOUNT_1TB"; db_name="${UUID_1TB}.db" ;;
+        2) target="$MOUNT_2TB"; db_name="${UUID_2TB}.db" ;;
+        3) target="$MOUNT_4TB"; db_name="${UUID_4TB}.db" ;;
         4) 
             read -rp "Enter absolute path to audit: " target
+            db_name="custom_audit.db"
             ;;
         5) return ;;
         *) echo "Invalid option." ; sleep 1; audit_menu; return ;;
     esac
     
     if [[ -d "$target" ]]; then
-        python3 "$AUDITOR_SCRIPT" "$target"
+        python3 "$AUDITOR_SCRIPT" "$target" --db-name "$db_name"
     else
         echo -e "${RED}Path $target does not exist! Did you mount the drive?${NC}"
     fi
@@ -203,12 +217,14 @@ duplicate_menu() {
     read -rp "Option [1-5]: " dup_opt
     
     local target=""
+    local db_name=""
     case $dup_opt in
-        1) target="$MOUNT_1TB" ;;
-        2) target="$MOUNT_2TB" ;;
-        3) target="$MOUNT_4TB" ;;
+        1) target="$MOUNT_1TB"; db_name="${UUID_1TB}.db" ;;
+        2) target="$MOUNT_2TB"; db_name="${UUID_2TB}.db" ;;
+        3) target="$MOUNT_4TB"; db_name="${UUID_4TB}.db" ;;
         4) 
             read -rp "Enter absolute path to search: " target
+            db_name="custom_audit.db"
             ;;
         5) return ;;
         *) echo "Invalid option." ; sleep 1; duplicate_menu; return ;;
@@ -216,9 +232,9 @@ duplicate_menu() {
     
     if [[ -d "$target" ]]; then
         if [[ -n "${KNOWN_DUPLICATES_JSON:-}" ]] && [[ -f "$KNOWN_DUPLICATES_JSON" ]]; then
-            python3 "$AUDITOR_SCRIPT" "$target" --find-duplicates --known-duplicates "$KNOWN_DUPLICATES_JSON"
+            python3 "$AUDITOR_SCRIPT" "$target" --find-duplicates --known-duplicates "$KNOWN_DUPLICATES_JSON" --db-name "$db_name"
         else
-            python3 "$AUDITOR_SCRIPT" "$target" --find-duplicates
+            python3 "$AUDITOR_SCRIPT" "$target" --find-duplicates --db-name "$db_name"
         fi
     else
         echo -e "${RED}Path $target does not exist! Did you mount the drive?${NC}"

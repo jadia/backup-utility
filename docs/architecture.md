@@ -2,11 +2,17 @@
 
 This document outlines *why* this utility is structured the way it is and *how* the different components collaborate to provide a failsafe environment.
 
-## The Cascading Problem
-In a standard cascading backup (`1TB -> 2TB -> 4TB`), using `rsync --delete` creates an identical mirror at the time of execution. While this seems desirable, it introduces a severe flaw:
-If a file becomes silently corrupted on the source drive (e.g., bit-rot), `rsync` detects a difference and faithfully overwrites the healthy backup on the destination drive. This destroys the only good copy of the data. 
+## The Sync Problem: Cascading and Redundancy
+In a standard daisy-chain cascading backup (`1TB -> 2TB -> 4TB`), using `rsync --delete` creates an identical mirror. This introduces two severe flaws:
+1. **Silent Overwrites**: If a file becomes silently corrupted on the source drive (e.g., bit-rot), `rsync` detects a difference and faithfully overwrites the healthy backup downstream. This destroys the only good copy of the data. 
+2. **Nested Redundancy**: If you cascade A into B, and then sync B into C, you end up with C holding copies of both B and awkwardly nested copies of A (`/mnt/4tb/2tb_backup/1tb_backup`).
 
-## The Solution: The "Archive" Failsafe
+## The Solutions
+
+### 1. The Hub & Spoke Topology
+To prevent redundant nesting, we utilize a Hub & Spoke mapping model configured in `config.env`. The 1TB backups reside independently on both the 2TB and the 4TB. To enforce this, the `auditor_config.json` natively excludes the `1tb_backup/` directory when syncing data from the 2TB to the 4TB, ensuring flat, independent archives.
+
+### 2. The "Archive" Failsafe
 Instead of directly overwriting or deleting files on the destination drive, `core_sync.sh` utilizes `rsync`'s built-in `--backup` and `--backup-dir` flags.
 
 **How it works:**

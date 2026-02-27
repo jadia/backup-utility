@@ -7,7 +7,8 @@
         ".cache/",
         "tmp/",
         "System Volume Information/",
-        "$RECYCLE.BIN/"
+        "$RECYCLE.BIN/",
+        "1tb_backup/"
     ],
     "EXT_FILTER": [
         ".jpg", ".jpeg", ".png", ".heic",

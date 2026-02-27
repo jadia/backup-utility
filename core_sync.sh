@@ -86,7 +86,7 @@ verify_thresholds() {
     if [ "$WARN" -eq 1 ]; then
         echo -e "${RED}Large number of changes detected! Please review the log manually.${NC}"
         echo "Log snippet (top deleted files):"
-        grep -E '^\*deleting' "$logfile" | head -n 10
+        grep -E '^\*deleting' "$logfile" | head -n 10 || true
         echo ""
     fi
 }

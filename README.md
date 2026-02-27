@@ -8,9 +8,10 @@ This utility was highly personalized and written specifically for a very strict,
 
 **Core Assumptions & Hardcoding Defaults**:
 1. **Three Hard Drives Topology**: The system expects exactly three external drives (1TB, 2TB, 4TB).
-2. **Cascading Strategy**: 
+2. **Hub and Spoke Strategy (No Nested Cascading)**: 
    - 1TB gets synced as a backup into the 2TB. 
-   - The 2TB gets synced into the 4TB.
+   - 1TB gets synced as a backup into the 4TB.
+   - The 2TB gets synced into the 4TB. (The 1TB backup already on the 2TB drive is explicitly excluded so it does not get redundantly nested).
    - The primary Laptop (Source) gets synced directly to a separate folder on the 4TB.
 3. **Mount Paths**: The scripts strictly assume your drives will be mounted at `/mnt/1tb`, `/mnt/2tb`, and `/mnt/4tb`. 
 
