@@ -34,6 +34,7 @@ TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_DIR="$SCRIPT_DIR/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/rsync_core_${TIMESTAMP}.log"
+ERR_FILE="${LOG_FILE}.error"
 
 # The killer feature: Archive directory for overwritten/deleted files
 ARCHIVE_DIR="$DEST_DIR/Archive/$TIMESTAMP"
@@ -50,6 +51,7 @@ echo "Destination : $DEST_DIR"
 echo "Mode        : $MODE"
 echo "Archive Dir : $ARCHIVE_DIR"
 echo "Log File    : $LOG_FILE"
+echo "Err File    : $ERR_FILE"
 echo ""
 
 verify_thresholds() {
@@ -95,7 +97,7 @@ verify_thresholds() {
 if [[ "$MODE" == "safe" ]]; then
     echo "Running dry-run analysis... (this may take a moment for large drives)"
     # Perform dry run using itemize-changes to be parseable
-    rsync -iaAXvh --delete --dry-run "${RSYNC_EXCLUDES[@]}" "$SOURCE_DIR/" "$DEST_DIR/" > "$LOG_FILE" 2>&1
+    rsync -rltvhi --delete --dry-run "${RSYNC_EXCLUDES[@]}" "$SOURCE_DIR/" "$DEST_DIR/" > "$LOG_FILE" 2> "$ERR_FILE"
     
     verify_thresholds "$LOG_FILE"
     
@@ -113,12 +115,12 @@ fi
 mkdir -p "$ARCHIVE_DIR"
 
 echo "Executing rsync..."
-if rsync -iaAXvh --delete --backup --backup-dir="$ARCHIVE_DIR" "${RSYNC_EXCLUDES[@]}" "$SOURCE_DIR/" "$DEST_DIR/" >> "$LOG_FILE" 2>&1; then
+if rsync -rltvhi --delete --backup --backup-dir="$ARCHIVE_DIR" "${RSYNC_EXCLUDES[@]}" "$SOURCE_DIR/" "$DEST_DIR/" >> "$LOG_FILE" 2>> "$ERR_FILE"; then
     echo -e "${GREEN}Sync completed successfully!${NC}"
     echo "Files that were overwritten or deleted have been safely moved to:"
     echo "$ARCHIVE_DIR"
 else
-    echo -e "${RED}Sync encountered errors. Check the log for details:${NC}"
-    echo "$LOG_FILE"
+    echo -e "${RED}Sync encountered errors. Check the error log for details:${NC}"
+    echo "$ERR_FILE"
     exit 1
 fi
